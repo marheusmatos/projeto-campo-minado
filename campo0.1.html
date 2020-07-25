@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <style>
+        #jogo {
+
+            border-radius: 1%;
+            background-color: whitesmoke;
+            box-shadow: 0px 0px 5px gray;
+            width: 450px;
+            padding: 5px;
+        }
+
+
+
+        #campo {
+
+            margin-top: 1%;
+            height: 450px;
+
+
+
+        }
+
+        #relogio {
+            border-radius: 5px;
+            box-shadow: 0px 0px 1px gray;
+            height: 75px;
+            background-color: white;
+        }
+
+        p {
+            margin-left: auto;
+
+
+        }
+
+        .cel {
+            width: 11.5%;
+            /*   500px/8= 62%    */
+            height: 11.5%;
+            background-color: #bfbfbf;
+            border-radius: 13%;
+            float: left;
+            margin: 0.5%;
+
+        }
+
+        .cel:hover {
+            background-color: goldenrod;
+
+        }
+
+        ul {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        li {
+            display: inline-block;
+            margin: 5%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <center>
+        <div id=jogo>
+            <div id="relogio">
+
+
+
+                <ul>
+                    <li>
+                        😀
+                    </li>
+
+                    <li>
+                        <span id="conter">0 </span>
+                        💣
+                    </li>
+                    <li>
+                        <span id="clock">0</span>
+                        ⏲️
+                    </li>
+
+
+                </ul>
+
+
+            </div>
+            <div id='campo' oncontextmenu="return false;">
+
+            </div>
+
+        </div>
+
+    </center>
+
+</body>
+<script>
+    var minasMaximas = 0;
+    var minasMarcadas = 0;
+    var emojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
+    var cores = ["Lightgreen", "#ED79B3", "#A8C1ED", "LightSalmon", "LightCoral", "LightSeaGreen"];
+    var matrix = new Array(8);
+    //cronometro
+    var seg = 0;
+    var min = 0;
+    var funcionando = false;
+    function cronometro() {
+
+        if (funcionando) {
+            seg++;
+
+            if (seg >= 60) {
+                seg = 0;
+                min++;
+            }
+
+            document.getElementById("clock").innerText = min + ":" + seg;
+
+        }
+
+
+    }
+    setInterval("cronometro()", 1000);
+
+    for (var x = 0; x < 8; x++) {
+
+        matrix[x] = new Array(8);
+
+        matrix[x][parseInt((Math.random() * 8))] = "f"; //colocando mina em uma casa aleatoria entre 0 e 8
+    }
+    // o loop só cria 8 minas, logo coloco mais duas em posicoes aleatorias e marce se alguma mina já esta no lugar. 
+    if (matrix[parseInt(Math.random() * 8)][parseInt(Math.random() * 8)] == null) {
+
+        matrix[parseInt(Math.random() * 8)][parseInt(Math.random() * 8)] = "f";
+    } else {
+
+        minasMaximas--;
+    }
+    if (matrix[parseInt(Math.random() * 8)][parseInt(Math.random() * 8)] == null) {
+
+        matrix[parseInt(Math.random() * 8)][parseInt(Math.random() * 8)] = "f";
+    } else {
+
+        minasMaximas--;
+    }
+
+    minasMaximas += 10;
+    document.getElementById("conter").innerText = minasMaximas;
+
+    // loop para colocar os numetos
+    for (var x = 0; x < 8; x++) {
+
+        for (var y = 0; y < 8; y++) {
+            if (matrix[x][y] != "f") {
+                var numeroDeMinas = 0;
+                try { // tentar contar quantas minas estão ao redor
+                    if (x > 0) {
+                        //minas de cima
+                        if (matrix[x - 1][y - 1] == "f" || matrix[x - 1][y] == "f" || matrix[x - 1][y + 1] == "f") {
+
+                            numeroDeMinas++;
+                        }
+                    }
+
+                    //laterais
+                    if (matrix[x][y - 1] == "f" || matrix[x][y + 1] == "f") {
+                        numeroDeMinas++;
+
+                    }
+                    //minas de baixo
+                    if (matrix[x + 1][y - 1] == "f" || matrix[x + 1][y] == "f" || matrix[x + 1][y + 1] == "f") {
+
+                        numeroDeMinas++;
+                    }
+
+
+                } catch{ }
+                if (numeroDeMinas > 0) {
+                    matrix[x][y] = numeroDeMinas;
+
+                }
+            }
+            document.getElementById("campo").innerHTML += "<div class='cel' marcado='0' id= " + x + y + " onclick='jogar(" + x + "," + y + ")'" + "oncontextmenu='marcarBomba(" + x + "," + y + ")'></div>";
+        }
+    }
+    console.table(matrix);
+
+    function jogar(x, y) {
+        var elemento = document.getElementById(x + "" + y);
+        if (elemento.getAttribute("marcado") == "0") {
+
+
+
+            funcionando = true;
+            var valor = matrix[x][y];
+
+            if (valor == "f" || valor == "y") {
+                alert("morreu");
+
+            }
+            else {
+
+                if (valor != null) {
+                    elemento.innerHTML = "<p>" + valor + "</p>";
+                    elemento.style.backgroundColor = cores[valor - 1];
+                } else {
+                    marcarCasasVizinhas(x, y);
+                }
+            }
+        }
+    }
+
+    //ao apertar botão direiro, marca-se a bomba. 
+    function marcarBomba(x, y) {
+        var elemento = document.getElementById(x + "" + y);
+
+        if (elemento.getAttribute("marcado") == "0") {
+            if (elemento.innerText == "") {
+                minasMarcadas++;
+                elemento.innerText = "🔴";
+                elemento.setAttribute("marcado", "1");
+                if (matrix[x][y] == "f") {
+                    matrix[x][y] = "y";
+
+                }
+            }
+        } else {
+            minasMarcadas--;
+            elemento.innerText = "";
+            elemento.setAttribute("marcado", "0");
+            if (matrix[x][y] == "y") {
+                matrix[x][y] = "f";
+            }
+
+        }
+
+        document.getElementById("conter").innerText = minasMarcadas + "/" + minasMaximas;
+        if (minasMarcadas >= minasMaximas) {
+            for (var a = 0; a < 8; a++) {
+                for (var b = 0; b < 8; b++) {
+                    if (matrix[a][b] == "f") {
+                        console.table(matrix);
+                        alert("faliceu");
+                        a = 10; b = 10;
+                        break;
+                    }
+                }
+
+            }
+            alert("vc é pica");
+        }
+    }
+
+    function marcarCasasVizinhas(x, y) {
+        var i = y;
+        var j = x;
+
+        //diagonal superior esquerda
+        while (i >= 0 && j >= 0 && matrix[j][i] == null) {
+
+            try {
+
+                for (var a = j; matrix[a][i] == null; a++) {
+
+                    document.getElementById(a + "" + i).style.backgroundColor = "#E0E0E0";
+                }
+            } catch{
+
+            }
+
+            i--;
+            j--;
+        }
+
+        //diagonal inferior direita
+        i = y;
+        j = x;
+        while (i < 8 && j < 8 && matrix[j][i] == null) {
+
+
+
+            try {
+
+                for (var a = j; matrix[a][i] == null; a--) {
+
+
+
+                    document.getElementById(a + "" + i).style.backgroundColor = "#E0E0E0";
+                }
+            } catch{
+
+            }
+
+
+            i++;
+            j++;
+        }
+
+    }
+</script>
+
+</html>

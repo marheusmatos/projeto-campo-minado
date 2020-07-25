@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <style>
+       
+       #jogo{
+
+        border-radius: 1%;
+            background-color: whitesmoke;
+            box-shadow: 0px 0px 5px gray;
+            width: 450px;
+            padding: 5px;
+       }
+       
+       
+        #campo {
+
+           margin-top: 1%;
+            height: 450px;
+           
+
+
+        }
+
+        #relogio {
+            border-radius: 5px;
+            box-shadow: 0px 0px 1px gray;
+            height: 75px;
+            background-color: white;
+        }
+
+
+        .cel {
+            width: 11.5%;
+            /*   500px/8= 62%    */
+            height: 11.5%;
+            background-color: #bfbfbf;
+            border-radius: 13%;
+            float: left;
+            margin: 0.5%;
+        }
+
+        .cel:hover {
+            background-color: goldenrod;
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <center>
+        <div id=jogo>
+            <div id="relogio">
+                😀
+            </div>
+            <div id='campo'>
+
+            </div>
+
+        </div>
+
+    </center>
+
+</body>
+<script>
+
+    var matrix = new Array(8);
+
+    for (var x = 0; x < 8; x++) {
+
+        matrix[x] = new Array(8);
+
+        for (var y = 0; y < 8; y++) {
+            if (Math.random() > 0.7) { //chance de encontrar uma mina= 1 - 0.8
+                matrix[x][y] = "f";
+
+            } else { // se não estiver um "f" na casa, printar numero de minas no raio 
+            }
+
+        }
+    }
+    for (var x = 0; x < 8; x++) { // loop para colocar os numetos
+
+        for (var y = 0; y < 8; y++) {
+            if (matrix[x][y] != "f") {
+                var numeroDeMinas = 0;
+                try { // tentar contar quantas minas estão ao redor
+                    if (x > 0) {
+                        //minas de cima
+                        if (matrix[x - 1][y - 1] == "f" || matrix[x - 1][y] == "f" || matrix[x - 1][y + 1] == "f") {
+
+                            numeroDeMinas++;
+                        }
+                    }
+
+
+                    //laterais
+                    if (matrix[x][y - 1] == "f" || matrix[x][y + 1] == "f") {
+                        numeroDeMinas++;
+
+                    }
+                    //minas de baixo
+                    if (matrix[x + 1][y - 1] == "f" || matrix[x + 1][y] == "f" || matrix[x + 1][y + 1] == "f") {
+
+                        numeroDeMinas++;
+                    }
+
+
+                } catch{ }
+                if (numeroDeMinas > 0) {
+                    matrix[x][y] = numeroDeMinas;
+
+                }
+
+            }
+            document.getElementById("campo").innerHTML += "<div class='cel' id= " + x + y + " onclick='jogar(" + x + "," + y + ")'></div>";
+
+        }
+
+    }
+    console.table(matrix);
+    var emojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
+    var cores = ["Lightgreen", "#ED79B3", "#A8C1ED", "LightSalmon", "LightCoral", "LightSeaGreen"];
+    function jogar(x, y) {
+        var valor = matrix[x][y];
+
+        if (valor == "f") {
+            alert("morreu");
+
+        }
+        else {
+
+            if (valor != null) {
+                document.getElementById(x + "" + y).innerText = valor;
+
+                document.getElementById(x + "" + y).style.backgroundColor = cores[valor - 1];
+            } else {
+                recursiva(x, y);
+            }
+
+
+
+
+        }
+        //  twemoji.parse(document.body);
+    }
+
+    function recursiva(x, y) {
+
+
+        var i = y;
+        var j = x;
+
+        //diagonal superior esquerda
+        while (i >= 0 && j >= 0 && matrix[j][i] == null) {
+
+            try {
+
+                for (var a = j; matrix[a][i] == null; a++) {
+
+                    document.getElementById(a + "" + i).style.backgroundColor = "#E0E0E0";
+                }
+            } catch{
+
+            }
+
+            i--;
+            j--;
+        }
+
+        //diagonal inferior direita
+        i = y;
+        j = x;
+        while (i < 8 && j < 8 && matrix[j][i] == null) {
+
+
+
+            try {
+
+                for (var a = j; matrix[a][i] == null; a--) {
+
+
+
+                    document.getElementById(a + "" + i).style.backgroundColor = "#E0E0E0";
+                }
+            } catch{
+
+            }
+
+
+            i++;
+            j++;
+        }
+
+    }
+</script>
+
+</html>
